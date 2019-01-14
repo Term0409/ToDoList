@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">T O D O</string>
+    <string name="Open">Drawer Open</string>
+    <string name="Close">Drawer Closed</string>
+</resources>
