@@ -10,34 +10,97 @@
     >
 
 
+
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
 
-        <TextView
-            android:id="@+id/tv2"
-            android:layout_width="match_parent"
-            android:layout_height="205dp"
-            android:textSize="30dp"
-            android:background="@color/colorPrimary"/>
+
+    <RelativeLayout
+        android:id="@+id/rl1"
+        android:layout_margin="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <!--<TextView
+        android:id="@+id/tv1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="16"
+        android:textColor="@color/black"
+        android:textSize="50dp"
+        app:fontFamily="@font/muli_extrabold" />
 
         <TextView
-            android:id="@+id/tv1"
+            android:id="@+id/month_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="90dp"
-            android:textColor="@color/white"
-            android:textSize="40dp"
-            app:fontFamily="@font/assistant_light" />
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="45dp"
+            android:layout_toRightOf="@+id/tv1"
+            android:text="August"
+            android:textColor="@color/black"
+            android:textSize="25dp"
+            app:fontFamily="@font/muli_semibold" />
 
-        <ListView
-            android:layout_below="@+id/tv2"
-            android:id="@+id/list_todo"
+        <TextView
+            android:id="@+id/year_tv"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-        </ListView>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/month_tv"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/tv1"
+            android:text="2019"
+            android:textColor="@color/black"
+            android:textSize="15dp"
+            app:fontFamily="@font/muli" />-->
+
+        <TextView
+            android:id="@+id/mytasks_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="30dp"
+            android:text="My Tasks"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/day_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/mytasks_tv"
+            android:text="2"
+            android:layout_marginLeft="30dp"
+            android:textSize="15sp"
+            android:textColor="#595959"
+            android:layout_marginRight="10dp"/>
+
+        <TextView
+            android:id="@+id/newtv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/mytasks_tv"
+            android:layout_toRightOf="@+id/day_tv"
+            android:text="Tasks"
+            android:textSize="15sp"
+            android:textColor="#595959"
+            />
+    </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rl1"
+            android:layout_marginTop="20dp"
+            android:id="@+id/task_rv"/>
+
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/act_add"
@@ -49,7 +112,7 @@
             android:layout_margin="16dp"
             android:clickable="true"
             android:src="@drawable/ic_plus"
-            app:backgroundTint="@color/teal"
+            app:backgroundTint="#007aff"
             app:elevation="8dp"
             app:fabSize="normal" />
 
@@ -60,6 +123,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:menu="@menu/navigation_menu"
+        android:visibility="gone"
+        app:headerLayout="@layout/header_layout"
         android:layout_gravity="start"
         android:id="@+id/nv">
 
@@ -67,7 +132,10 @@
 
 
 
+
+
 </android.support.v4.widget.DrawerLayout>
+
 
 
 

@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@+id/calendar1"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:orientation="vertical"
+
+    />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/events_rv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/calendar1"/>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_plus"
+        app:backgroundTint="#007aff"
+        app:elevation="8dp"
+        app:fabSize="normal" />
 
 
 
- <CalendarView
-     android:layout_width="match_parent"
-     android:layout_height="wrap_content">
-
- </CalendarView>
-
-
-</LinearLayout>
+</RelativeLayout>

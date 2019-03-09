@@ -1,45 +1,71 @@
 package com.example.sirishaa.todo;
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.DialogInterface;
+
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.Menu;
+import android.support.v7.app.AppCompatDialog;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.sirishaa.todo.db.TaskDBHelper;
+import com.example.sirishaa.todo.Adapters.CategoryAdapter;
+import com.example.sirishaa.todo.Adapters.TaskListAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TaskDBHelper mHelper; //private instance of class TaskDBHelper
-    private ListView mTaskListView;
-    private ArrayAdapter<String> mAdapter;
+
+    static TaskListAdapter taskListAdapter;
+    public static ArrayList<Task> todoList;
+    public String today, selectedCategory;
+    int listPosition = 0;
+
+    static TextView titleTv;
+    static EditText titleEt;
+    static AppCompatButton addTaskB;
+
+    private static RecyclerView horizontal_rv;
+    private static ArrayList<String> categoryList;
+    private static CategoryAdapter categoryAdapter;
+    CheckBox checkBox;
+
+
 
     //VIEW ITEMS
     TextView tv_1;
+    TextView monthTv;
+    TextView yearTv;
+    static TextView dayTv, myTaskTv, newTv;
     FloatingActionButton add_bt;
+    String name;
+    public static FirebaseAuth auth;
+    public static FirebaseUser user;
 
     //SIDE BAR
     private DrawerLayout dl;
@@ -47,25 +73,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private NavigationView nv;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        add_bt = (FloatingActionButton) findViewById(R.id.act_add);
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
+        newTv = findViewById(R.id.newtv);
+        Intent in = getIntent();
+        //name = in.getStringExtra("Name");
+
+        add_bt = findViewById(R.id.act_add);
         add_bt.setOnClickListener(this);
-
-
+        //setTitle("TODO");
+        Typeface medium_tf = Typeface.createFromAsset(getAssets(),"fonts/avenir_medium.ttf");
+        Typeface heavy_tf = Typeface.createFromAsset(getAssets(),"fonts/avenir_heavy.ttf");
         //SIDE BAR
 
-       dl = (DrawerLayout)findViewById(R.id.activity_main);
+       dl = findViewById(R.id.activity_main);
        t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close);
         dl.addDrawerListener(t);
         t.syncState();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setElevation(0);
 
-        nv = (NavigationView)findViewById(R.id.nv);
+        nv = findViewById(R.id.nv);
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -75,36 +109,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case R.id.cal:
                         Intent calen = new Intent(getApplicationContext(), CalendarActivity.class);
                         startActivity(calen);
-                    case R.id.settings:
-                        Toast.makeText(MainActivity.this, "Settings",Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.categories:
+                        Intent categoryIntent = new Intent(getApplicationContext(), CategoriesActivity.class);
+                        startActivity(categoryIntent);
+                        break;
                     case R.id.mycart:
                         Toast.makeText(MainActivity.this, "My Cart",Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.logout:
+                        auth.signOut();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        break;
                     default:
                         return true;
                 }
 
-
-
+             return true;
 
             }
         });
 
 
+
         //GET DATE AND DAY IN TITLE BAR
-        tv_1 = (TextView) findViewById(R.id.tv1);
+        //tv_1 = (TextView) findViewById(R.id.tv1);
+        //monthTv = findViewById(R.id.month_tv);
+        //yearTv = findViewById(R.id.year_tv);
+
+        dayTv = findViewById(R.id.day_tv);
+        myTaskTv = findViewById(R.id.mytasks_tv);
+        newTv.setTypeface(medium_tf);
+        dayTv.setTypeface(medium_tf);
+        myTaskTv.setTypeface(heavy_tf);
+        //myTaskTv.setText("Hi "+name+",");
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
         Date d = new Date();
-        String dayOfTheWeek = sdf.format(d);
-        String date = new SimpleDateFormat("dd MMMM ", Locale.getDefault()).format(new Date());
-        tv_1.setText(dayOfTheWeek+"\n"+date);
+        String pattern = "MM-dd-yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        today = simpleDateFormat.format(d);
+        //tv_1.setText(date);
+       // monthTv.setText(month);
+       // yearTv.setText(year);
 
 
-        //DATABASE
-        mHelper=new TaskDBHelper(this); //initialising it here
-        mTaskListView = (ListView) findViewById(R.id.list_todo);
-        updateUI();
+        //mHelper=new TaskDBHelper(this); //initialising it here
+        todoList = new ArrayList<>();
 
-        //DISPLAY DATA FROM DB
+        RecyclerView recyclerView = findViewById(R.id.task_rv);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(llm);
+        taskListAdapter = new TaskListAdapter(this);
+        recyclerView.setAdapter(taskListAdapter);
+        dayTv.setText(String.valueOf(todoList.size())+"tasks");
+        taskListAdapter.forceNotify(todoList);
+
+
+        /*
         SQLiteDatabase db=mHelper.getReadableDatabase();
         Cursor cur= db.query("Tasks", new String[] {"_id","title"},null,null,null,null,null);
         while(cur.moveToNext())
@@ -112,11 +173,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int idx=cur.getColumnIndex("title");
         }
         cur.close();
-        db.close();
+        db.close();*/
     }
 
 
-   //SIDE BAR
+
+    //SIDE BAR
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -126,93 +188,143 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    public void getSelectedCategory(int listPosition)
+    {
+        this.listPosition = listPosition;
+    }
+
     @Override
     public void onClick(View v) {
 
         if(v.getId() == R.id.act_add)
 
         {
+            final AppCompatDialog rejectDlg = new AppCompatDialog(this);
+            categoryList = new ArrayList<>();
+            categoryList.add("Work");
+            categoryList.add("Personal");
+            categoryList.add("Shopping");
 
-            final EditText edt = new EditText(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.add_task_dialog, null);
+            horizontal_rv= view.findViewById(R.id.categories_rv);
+            addTaskB = view.findViewById(R.id.add_task_b);
+            //titleTv = view.findViewById(R.id.title_tv);
+            titleEt = view.findViewById(R.id.title_et);
+            horizontal_rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false));
+            categoryAdapter=new CategoryAdapter(categoryList, this);
+            horizontal_rv.setAdapter(categoryAdapter);
 
-            //Alertdialog.Builder is an  inner class of AlertDialog class
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
 
-            //set messages and title of alert box
-            adb.setTitle("Add a task");
-            adb.setMessage("What do you want to do today?");
-            adb.setView(edt);
-            //Action when you add something
-            adb.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            addTaskB.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String task = String.valueOf(edt.getText());
-                    //Get the text then...
-
-                    //INSERT INTO DB
-                    SQLiteDatabase db = mHelper.getWritableDatabase(); //write to DB
-                    ContentValues values = new ContentValues();
-                    values.put("title", task); //Put the value taken from user
-                    db.insertWithOnConflict("Tasks", null, values, SQLiteDatabase.CONFLICT_REPLACE);
-                    db.close();
-                    updateUI();
+                public void onClick(View v) {
+                    String taskTitle = titleEt.getText().toString();
+                    selectedCategory = categoryList.get(listPosition);
+                    if(selectedCategory!=null)
+                    {
+                        saveTasksInCategories(taskTitle,selectedCategory);
+                    }
+                    saveTodo(taskTitle,today,selectedCategory);
+                    rejectDlg.dismiss();
                 }
             });
-
-            adb.setNegativeButton("Cancel", null);
-
-            // Create an AlertDialog by using the create() method of builder class and show the dialog
-            AlertDialog ad = adb.create();
-            ad.show();
-
-
-            // default: return super.onOptionsItemSelected(item);
+            rejectDlg.setContentView(view);
+            rejectDlg.show();
         }
 
     }
 
+    public static void saveTasksInCategories(String taskTitle, String selectedCategory)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        String category = database.getReference(user.getUid()).child("ToDoList").child(selectedCategory).push().getKey();
 
 
+        Map<String, Object> childUpdates1 = new HashMap<>();
+        childUpdates1.put(category, taskTitle);
+        database.getReference(user.getUid()).child("Categories").child(selectedCategory).updateChildren(childUpdates1, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError == null) {
 
-//To populate the list view
-    private void updateUI() {
-        ArrayList<String> taskList = new ArrayList<>();
-        SQLiteDatabase db = mHelper.getReadableDatabase();
-        Cursor cursor = db.query("Tasks",
-                new String[]{"_id", "title"},
-                null, null, null, null, null);
-        while (cursor.moveToNext()) {
-            int idx = cursor.getColumnIndex("title");
-            taskList.add(cursor.getString(idx));
-        }
+                }
+            }
+        });
 
-        if (mAdapter == null) {
-            mAdapter = new ArrayAdapter<>(this,
-                    R.layout.item_todo,
-                    R.id.title,
-                    taskList);
-            mTaskListView.setAdapter(mAdapter);
-        } else {
-            mAdapter.clear();
-            mAdapter.addAll(taskList);
-            mAdapter.notifyDataSetChanged();
-        }
-
-        cursor.close();
-        db.close();
     }
 
-    public void deleteTask(View view) {
-        View parent = (View) view.getParent();
-        TextView taskTextView = (TextView) parent.findViewById(R.id.title);
-        String task = String.valueOf(taskTextView.getText());
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.delete("Tasks",
-                "title" + " = ?",
-                new String[]{task});
-        db.close();
-        updateUI();
+    public static void saveTodo(String taskTitle, String today, String selectedCategory) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        String key = database.getReference(user.getUid()).child("ToDoList").child(today).push().getKey();
+
+        Task taskNew = new Task();
+        taskNew.setTaskName(taskTitle);
+        taskNew.setCategory(selectedCategory);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put( key, taskNew.toFirebaseObject());
+        database.getReference(user.getUid()).child("ToDoList").child(today).updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError == null) {
+
+                }
+            }
+        });
+
+        database.getReference(user.getUid()).child("ToDoList").child(today).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        todoList.clear();
+
+                        Log.w("TodoApp", "getUser:onCancelled " + dataSnapshot.toString());
+                        Log.w("TodoApp", "count = " + String.valueOf(dataSnapshot.getChildrenCount()) + " values " + dataSnapshot.getKey());
+                        for (DataSnapshot data : dataSnapshot.getChildren()) {
+                            Task task = data.getValue(Task.class);
+                            todoList.add(task);
+                        }
+
+                        taskListAdapter.forceNotify(todoList);
+                        dayTv.setText(String.valueOf(todoList.size()));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("TodoApp", "getUser:onCancelled", databaseError.toException());
+                    }
+                });
+
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        database.getReference(user.getUid()).child("ToDoList").child(today).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        todoList.clear();
+
+                        Log.w("TodoApp", "getUser:onCancelled " + dataSnapshot.toString());
+                        Log.w("TodoApp", "count = " + String.valueOf(dataSnapshot.getChildrenCount()) + " values " + dataSnapshot.getKey());
+                        for (DataSnapshot data : dataSnapshot.getChildren()) {
+                            Task task = data.getValue(Task.class);
+                            todoList.add(task);
+                        }
+
+                        taskListAdapter.forceNotify(todoList);
+                        dayTv.setText(String.valueOf(todoList.size()));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("TodoApp", "getUser:onCancelled", databaseError.toException());
+                    }
+                });
+    }
 
 }

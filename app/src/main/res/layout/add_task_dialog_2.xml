@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/title_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@null"
+        android:fontFamily="@font/muli"
+        android:hint="Add Task"
+        android:textSize="30dp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/add_task_b"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/title_et"
+        android:layout_marginTop="190dp"
+        android:background="#1de9b6"
+        android:fontFamily="@font/muli_bold"
+        android:text="+ ADD TASK"
+        android:textColor="@color/white" />
+
+
+</RelativeLayout>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "902355714843",
+    "firebase_url": "https://todolist-e1d53.firebaseio.com",
+    "project_id": "todolist-e1d53",
+    "storage_bucket": "todolist-e1d53.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902355714843:android:b4361ccfe02b1b1a",
+        "android_client_info": {
+          "package_name": "com.example.sirishaa.todo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902355714843-c89h158ejge1ekfcn5bs4s648eoat68i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6ZM7v2cequKyt6vRP3YyrMBn-aBlzV7E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

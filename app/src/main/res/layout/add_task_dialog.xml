@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/cat_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="30dp">
+
+        <!--<TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/muli_bold"
+            android:text="What do you want to do today?"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>-->
+
+        <EditText
+            android:id="@+id/title_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@null"
+            android:fontFamily="@font/muli"
+            android:hint="Add task"
+            android:textSize="30dp" />
+
+        <TextView
+            android:id="@+id/cat_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title_et"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/muli"
+            android:text="Choose a category"
+            android:textSize="15sp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/categories_rv"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@+id/cat_tv"
+            android:layout_marginTop="15dp" />
+
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/add_task_b"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/cat_rl"
+        android:background="#1de9b6"
+        android:fontFamily="@font/muli_bold"
+        android:text="+ ADD TASK"
+        android:textColor="@color/white" />
+
+
+</RelativeLayout>
